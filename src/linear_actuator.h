@@ -10,7 +10,8 @@ enum LinearActuatorState {
     OPEN = 1,
     CLOSED = 0,
     OPENING = 2,
-    CLOSING = -1
+    CLOSING = -1,
+    UNKNOWN = -3
 };
 
 using LinearActuatorCallback = std::function<void()>;
@@ -47,9 +48,11 @@ class LinearActuator {
                 case OPEN:
                 case OPENING:
                     toClosedState();
+                    break;
                 case CLOSED:
                 case CLOSING:
                     toOpenState();
+                    break;
             }
         }
 
@@ -74,9 +77,10 @@ class LinearActuator {
         void loop() {
             // Do things based on state
             switch (_state) {
-                // Open or closed, do nothing
+                // Open/closed/unknown, do nothing
                 case OPEN:
                 case CLOSED:
+                case UNKNOWN:
                     break;
                 // If opening and duration has elapsed, turn off actuator
                 case OPENING:                    
@@ -99,7 +103,7 @@ class LinearActuator {
  
     private:
         int _duration, _open_pin, _close_pin;
-        LinearActuatorState _state;
+        LinearActuatorState _state = UNKNOWN;
         unsigned int _start_ms = 0;
 
         // Containers for callbacks
@@ -157,6 +161,7 @@ class LinearActuator {
                     // Already open or opening, return
                     break;
                 case CLOSED:
+                case UNKNOWN:
                     // Currently closed, start opening
                     _state = OPENING;
                     setActuator(HIGH, LOW);
@@ -181,6 +186,7 @@ class LinearActuator {
                     // Already closed or closing, return
                     break;
                 case OPEN:
+                case UNKNOWN:
                     // Currently OPEN, start closing
                     _state = CLOSING;
                     setActuator(LOW, HIGH);
