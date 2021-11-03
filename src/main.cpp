@@ -9,9 +9,12 @@
 #include "linear_actuator.h"
 
 PRODUCT_ID(15773);
-PRODUCT_VERSION(10);
+PRODUCT_VERSION(11);
 
 SerialLogHandler logHandler(115200, LOG_LEVEL_ALL);
+
+// Enable system thread so Photon still runs program when WiFi is lost
+SYSTEM_THREAD(ENABLED)
 
 const int HUTCH_DOOR_OPEN_PIN = D1;
 const int HUTCH_DOOR_CLOSE_PIN = D0;
@@ -171,9 +174,11 @@ void setup() {
     case OPEN:
     case OPENING:
       HutchDoor.open();
+      break;
     case CLOSED:
     case CLOSING:
       HutchDoor.close();
+      break;
   }
   loadDoorSchedule();
 
